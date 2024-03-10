@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://vuejs.org/api/sfc-script-setup.html#script-setup
-import Greet from "./components/Greet.vue";
+import SQL from './components/SQL.vue';
 </script>
 
 <template>
@@ -37,7 +37,7 @@ import Greet from "./components/Greet.vue";
       >
     </p>
 
-    <Greet />
+    <SQL />
   </div>
 </template>
 

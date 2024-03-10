@@ -3,20 +3,23 @@ import { ref } from "vue";
 import { invoke } from "@tauri-apps/api/tauri";
 
 const sqlResult = ref("");
-const sql = ref("create person set name = $name;");
-const params = ref("{\"name\":\"vitor\", \"test\":{\"name\":\"vitor\"}}");
+const sql = ref("");
+const params = ref("");
+const development = import.meta.env.DEV;
 
 async function query(sql: string, params?: any) {
   // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-  sqlResult.value = JSON.parse(await invoke("query", { sql, params: JSON.parse(params), }));
-  console.log(sqlResult.value);
+  sqlResult.value = JSON.parse(await invoke("query", { sql, params: JSON.parse(params || '{}'), }));
+  if (development) {
+    console.log(sqlResult.value)
+  }
 }
 </script>
 
 <template>
   <form class="col" @submit.prevent="query(sql, params)">
-    <input id="sql-input" v-model="sql" placeholder="Enter a sql..." />
-    <input id="params-input" v-model="params" placeholder="Enter a params JSON..." />
+    <input id="sql-input" v-model="sql" placeholder="Enter SurrelQL query..." />
+    <input id="params-input" v-model="params" placeholder="Enter params as JSON..." />
     <button type="submit">SQL</button>
   </form>
 

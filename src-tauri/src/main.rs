@@ -3,7 +3,7 @@
 
 use std::collections::HashMap;
 use surrealdb::engine::local::{Db, SpeeDb};
-use surrealdb::sql::{self, Array};
+use surrealdb::sql::{self, Array, Object};
 use surrealdb::Error;
 use surrealdb::Surreal;
 use tauri::State;
@@ -23,21 +23,26 @@ async fn query(
     for param in params {
         qr = qr.bind(param);
     }
-    let mut res = qr.await?;
+    let mut res = qr.with_stats().await?;
     let mut index = 0;
     let len = res.num_statements();
-    let mut result = Array::new();
+    let mut results = Array::new();
     while index < len {
-        result.push(res.take(index)?);
+        let took = res.take(index).unzip();
+        let duration = took.0.unwrap().execution_time.unwrap();
+        let mut result = Object::default();
+        result.0.insert("result".into(), took.1.unwrap()?);
+        result.0.insert("duration".into(), sql::to_value(duration)?);
+        results.push(sql::to_value(result)?);
         index = index + 1;
     }
-    Ok(sql::to_value(result).unwrap().into_json().to_string())
+    Ok(sql::to_value(results)?.into_json().to_string())
 }
 
 #[tokio::main]
 async fn main() {
-    let db = Surreal::new::<SpeeDb>("../surreal.db2").await.unwrap();
-    db.use_ns("test").use_db("test2").await.unwrap();
+    let db = Surreal::new::<SpeeDb>("../surreal.db").await.unwrap();
+    db.use_ns("test").use_db("test").await.unwrap();
 
     tauri::Builder::default()
         .manage(DbState(db))
