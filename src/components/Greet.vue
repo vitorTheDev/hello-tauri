@@ -8,7 +8,7 @@ const params = ref("{\"name\":\"vitor\", \"test\":{\"name\":\"vitor\"}}");
 
 async function query(sql: string, params?: any) {
   // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-  sqlResult.value = JSON.parse(await invoke("query2", { sql, params: JSON.parse(params), }));
+  sqlResult.value = JSON.parse(await invoke("query", { sql, params: JSON.parse(params), }));
   console.log(sqlResult.value);
 }
 </script>
